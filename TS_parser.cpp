@@ -11,21 +11,31 @@ int main( int argc, char *argv[ ], char *envp[ ])
 
     uint8_t* TS_PacketBuffer = new uint8_t[xTS::TS_PacketLength];
 
-  xTS_PacketHeader    TS_PacketHeader;
+    xTS_PacketHeader    TS_PacketHeader;
+    xTS_AdaptationField TS_AdaptationField;
+    
+    int32_t TS_PacketId = 0;
+    while(!feof(TS_fileHandler))
+    {
+    
+        TS_PacketHeader.Reset();
+        TS_AdaptationField.Reset();
+        
+        fread(TS_PacketBuffer, xTS::TS_PacketLength, 1, TS_fileHandler);
 
-  int32_t TS_PacketId = 0;
-  while(!feof(TS_fileHandler))
-  {
+        TS_PacketHeader.Parse(TS_PacketBuffer);
 
-      TS_PacketHeader.Reset();
-      fread(TS_PacketBuffer, xTS::TS_PacketLength, 1, TS_fileHandler);
+        
+         printf("%010d ", TS_PacketId);
+         TS_PacketHeader.Print();
 
-    TS_PacketHeader.Parse(TS_PacketBuffer);
-
-    printf("%010d ", TS_PacketId);
-    TS_PacketHeader.Print();
-    printf("\n");
-
-    TS_PacketId++;
-  }
+         if (TS_PacketHeader.hasAdaptationField())
+         {
+             TS_AdaptationField.Parse(TS_PacketBuffer, TS_PacketHeader.getAFC());
+             TS_AdaptationField.Print();
+         }
+         printf("\n");
+        
+         TS_PacketId++;
+    }
 }

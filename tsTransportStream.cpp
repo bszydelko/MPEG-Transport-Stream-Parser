@@ -11,7 +11,7 @@ std::string xTS::getBitStream(const uint8_t* _Input, size_t _startByte, size_t _
 	int bit = 0;
 	int c = 0;
 
-	for (size_t byte = _startByte; byte < _count; byte++)
+	for (size_t byte = _startByte; byte < _count + _startByte; byte++)
 	{
 		c_bin = "";
 		c = int(_Input[byte]);
@@ -48,9 +48,9 @@ void xTS_PacketHeader::Reset()
 
 int32_t xTS_PacketHeader::Parse(const uint8_t* Input)
 {
-	std::istringstream bit_stream(xTS::getBitStream(Input, 0, xTS::TS_HeaderLength));
+	std::istringstream H_bit_stream(xTS::getBitStream(Input, 0, xTS::TS_HeaderLength));
 
-	bit_stream >> SB >> E >> S >> P >> PID >> TSC >> AFC >> CC;
+	H_bit_stream >> SB >> E >> S >> P >> PID >> TSC >> AFC >> CC;
 
 	return int32_t();
 }
@@ -60,17 +60,21 @@ void xTS_PacketHeader::Print() const
 	std::stringstream oss;
 
 	oss <<
-		"TS:" <<
-		" SB=" << std::to_string(SB.to_ulong()) <<
-		" E=" << std::to_string(E.to_ulong()) <<
-		" S=" << std::to_string(S.to_ulong()) <<
-		" P=" << std::to_string(P.to_ulong()) <<
-		" PID=" << std::setw(4) << std::to_string(PID.to_ulong()) <<
-		" TSC=" << std::to_string(TSC.to_ulong()) <<
-		" AFC=" << std::to_string(AFC.to_ulong()) <<
-		" CC=" << std::setw(2) << std::to_string(CC.to_ulong());
+		"TS:"   <<
+		" SB="					  << SB  .to_ulong() <<
+		" E="					  << E   .to_ulong() <<
+		" S="					  << S   .to_ulong() <<
+		" P="					  << P   .to_ulong() <<
+		" PID=" << std::setw(4)   << PID .to_ulong() <<
+		" TSC="					  << TSC .to_ulong() <<
+		" AFC="					  << AFC .to_ulong() <<
+		" CC="  << std::setw(2)   << CC  .to_ulong();
 
 	std::cout << oss.str();
+}
+uint16_t xTS_PacketHeader::getAFC() const
+{
+	return uint16_t(AFC.to_ulong());
 }
 //=============================================================================================================================================================================
 
@@ -78,9 +82,62 @@ void xTS_PacketHeader::Print() const
 
 
 //=============================================================================================================================================================================
-// xTS_PacketHeader
+// xTS_AdaptationField
+//=============================================================================================================================================================================
+void xTS_AdaptationField::Reset()
+{
+	AFL.reset();
+	DC.reset();
+	RA.reset();
+	SPI.reset();
+	PR.reset();
+	OR.reset();
+	SPF.reset();
+	TP.reset();
+	EX.reset();
+
+	junk.reset();
+}
+
+int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationFieldControl)
+{
+	//Improve it
+	int lengthAF = Input[xTS::TS_HeaderLength];
+	AFL = lengthAF;
+
+	lengthAF++;
+
+	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_HeaderLength + 1, lengthAF));
+
+	AF_bit_stream >> DC >> RA >> SPI >> PR >> OR >> SPF >> TP >> EX >> junk;
+
+	return int32_t();
+}
+
+void xTS_AdaptationField::Print() const
+{
+	std::stringstream oss;
+
+	oss <<
+		" AF:"  <<
+		" L="   << std::setw(3) << AFL.to_ulong() <<
+		" DC="  << DC  <<
+		" RA="  << RA  <<
+		" SPI=" << SPI <<
+		" PR="  << PR  <<
+		" OR="  << OR  <<
+		" SPF=" << SPF <<
+		" TP="  << TP  <<
+		" EX="  << EX;
+
+	std::cout << oss.str();
+
+}
+
+
+
+
+
+
 //=============================================================================================================================================================================
 
-
-
-//=============================================================================================================================================================================

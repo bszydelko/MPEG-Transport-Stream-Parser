@@ -85,21 +85,35 @@ public:
   void     Print() const;
 
 public:
-  //TODO - direct acces to header values
+  //direct acces to header values
+    uint16_t getAFC() const;
 
 public:
   //TODO
-  bool     hasAdaptationField() const { /*TODO*/ }
+    bool     hasAdaptationField() const { return (AFC.to_ulong() == 2 || AFC.to_ulong() == 3) ? true : false; }
   bool     hasPayload        () const { /*TODO*/ }
 };
 
 //=============================================================================================================================================================================
 
-class xTS_AdaptadionField
+class xTS_AdaptationField
 {
 protected:
     //AF lenght
+    std::bitset<8>AFL;
+
     //mandatory field
+    std::bitset<1>DC;
+    std::bitset<1>RA;
+    std::bitset<1>SPI;
+    std::bitset<1>PR;
+    std::bitset<1>OR;
+    std::bitset<1>SPF;
+    std::bitset<1>TP;
+    std::bitset<1>EX;
+
+    //temp
+    std::bitset<182 * CHAR_BIT> junk;
 
 public:
     void Reset();
