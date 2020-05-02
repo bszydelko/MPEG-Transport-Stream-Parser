@@ -49,6 +49,8 @@ public:
   static constexpr uint32_t BaseClockFrequency_kHz        =       90; //kHz
   static constexpr uint32_t ExtendedClockFrequency_kHz    =    27000; //kHz
   static constexpr uint32_t BaseToExtendedClockMultiplier =      300;
+
+  static std::string getBitStream(const uint8_t* _Input, size_t _startByte, size_t _count);
 };
 
 //=============================================================================================================================================================================
@@ -92,3 +94,20 @@ public:
 };
 
 //=============================================================================================================================================================================
+
+class xTS_AdaptadionField
+{
+protected:
+    //AF lenght
+    //mandatory field
+
+public:
+    void Reset();
+    int32_t Parse(const uint8_t* Input, uint8_t AdapdationFieldControl);
+    void Print() const;
+
+
+public:
+    //derrived values
+    uint32_t getNumBytes() const {}
+};
