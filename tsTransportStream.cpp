@@ -50,7 +50,17 @@ int32_t xTS_PacketHeader::Parse(const uint8_t* Input)
 {
 	std::istringstream H_bit_stream(xTS::getBitStream(Input, 0, xTS::TS_HeaderLength));
 
-	H_bit_stream >> sync_byte >> transport_error_indicator >> payload_unit_start_indicator >> transport_priority >> PID >> transport_scrambling_control >> adaptation_field_control >> continuity_counter;
+	H_bit_stream >> sync_byte;
+	H_bit_stream >> transport_error_indicator;
+	H_bit_stream >> payload_unit_start_indicator;
+	H_bit_stream >> transport_priority;
+	H_bit_stream >> PID;
+	H_bit_stream >> transport_scrambling_control;
+	H_bit_stream >> adaptation_field_control;
+	H_bit_stream >> continuity_counter;
+	
+	//rownie dobrze reszte bitstreamu mozna zapisac i udostepniac pozostalym klasom
+	//
 
 	return int32_t();
 }
@@ -165,8 +175,8 @@ void xTS_AdaptationField::Reset()
 
 int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationFieldControl)
 {
-	//Improve it
-	int lengthAF = Input[xTS::TS_AFLengthByte];
+	//dude, improve it
+	int lengthAF = Input[xTS::TS_AdaptationFieldLengthByte];
 	adaptation_field_length = lengthAF;
 
 
@@ -174,9 +184,16 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 
 	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_HeaderLength + 1, lengthAF));
 
-	AF_bit_stream >> discontinuity_indicator >> random_access_indicator >> elementary_stream_priority_indicator >> PCR_flag >> OPCR_flag >> splicing_point_flag >> transport_private_data_flag >> adaptation_field_extension_flag;
+	AF_bit_stream >> discontinuity_indicator;
+	AF_bit_stream >> random_access_indicator;
+	AF_bit_stream >> elementary_stream_priority_indicator;
+	AF_bit_stream >> PCR_flag;
+	AF_bit_stream >> OPCR_flag;
+	AF_bit_stream >> splicing_point_flag;
+	AF_bit_stream >> transport_private_data_flag;
+	AF_bit_stream >> adaptation_field_extension_flag;
 
-	//potrzeba sprawdzenia na "bogatszym" w pakiet
+	//potrzeba sprawdzenia na "bogatszym" w pakiet polach
 	if (PCR_flag == 1)
 	{
 		AF_bit_stream >> program_clock_reference_base;
@@ -191,6 +208,7 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 	}
 	if (splicing_point_flag == 1)
 		AF_bit_stream >> splice_countdown;
+
 	if (transport_private_data_flag == 1)
 	{
 		AF_bit_stream >> transport_private_data_length;
@@ -226,10 +244,6 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 		}*/
 
 	}
-
-
-	
-
 	return int32_t();
 }
 
@@ -271,6 +285,7 @@ void xPES_PacketHeader::Reset()
 
 int32_t xPES_PacketHeader::Parse(const uint8_t* Input)
 {
+	std::istringstream PES_bit_stream(xTS::getBitStream(Input,))
 	
 	return int32_t();
 }
@@ -286,17 +301,42 @@ void xPES_PacketHeader::Print() const
 
 void xPES_Assembler::Init(int32_t PID)
 {
+	m_LastContinuityCounter = -1;
 	m_PID = PID;
 }
 
 eResult xPES_Assembler::AbsorbPacket(const uint8_t* TransportStreamPacket, const xTS_PacketHeader* PacketHeader, const xTS_AdaptationField* AdaptationField)
 {
-	if (PacketHeader->getPID() == m_PID)
+	if (PacketHeader->getPID() == m_PID && PacketHeader->hasPayload())
 	{
 		if (PacketHeader->getPayloadUnitStartIndicator() == 1)
 		{
-			m_Started = true;
-			return eResult::AssemblingStarted;
+			if (PacketHeader->getContinuityControl() == 0) //parse header
+			{
+				m_Started = true;
+				m_LastContinuityCounter = PacketHeader->getContinuityControl();
+				m_PESH.Parse(TransportStreamPacket);
+				
+				return eResult::AssemblingStarted;
+			}
+		}
+		else
+		{
+			if (PacketHeader->getContinuityControl() - m_LastContinuityCounter == 1)
+			{
+				m_LastContinuityCounter = PacketHeader->getContinuityControl();
+
+				return eResult::AssemblingContinue;
+			}
+			else 
+				return eResult::StreamPackedLost;
+
+			//not sure if CC max is always 15
+			if (PacketHeader->getContinuityControl() == 15)
+			{
+				m_Started = false;
+				return eResult::AssemblingFinished;
+			}
 		}
 	}
 

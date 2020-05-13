@@ -54,7 +54,7 @@ public:
 
   //my stuff
   static std::string getBitStream(const uint8_t* _Input, size_t _startByte, size_t _count);
-  static constexpr uint32_t TS_AFLengthByte = 4; //of course it's 5
+  static constexpr uint32_t TS_AdaptationFieldLengthByte = 4; //of course it's 5
   
 };
 
@@ -103,7 +103,7 @@ public:
 public:
   //TODO
     bool     hasAdaptationField() const { return (adaptation_field_control.to_ulong() == 2 || adaptation_field_control.to_ulong() == 3) ? true : false; }
-    bool     hasPayload() const { adaptation_field_control.to_ulong() == 3 ? true : false; }
+    bool     hasPayload() const { (adaptation_field_control.to_ulong() == 3 || adaptation_field_control.to_ulong() == 1) ? true : false; }
 };
 
 //=============================================================================================================================================================================

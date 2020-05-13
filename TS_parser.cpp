@@ -15,7 +15,7 @@ int main(int argc, char* argv[], char* envp[])
     uint8_t             TS_PacketBuffer[xTS::TS_PacketLength];
     xTS_PacketHeader    TS_PacketHeader;
     xTS_AdaptationField TS_PacketAdaptationField;
-   // xPES_Assembler      PES_Assembler;
+    xPES_Assembler      PES_Assembler;
 
     //PES_Assembler.Init(136);
 
