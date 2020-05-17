@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <iostream>
 
+class xTS;
+
 void xTS_AdaptationField::Reset()
 {
 	adaptation_field_length.reset();
@@ -59,7 +61,7 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 	//lengthAF++;
 	
 
-	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_HeaderLength + 1, lengthAF));
+	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_AdaptationFieldLengthByte + 1, lengthAF));
 
 	AF_bit_stream >> discontinuity_indicator;
 	AF_bit_stream >> random_access_indicator;
@@ -152,8 +154,22 @@ void xTS_AdaptationField::Print() const
 		" OR=" << OPCR_flag <<
 		" SPF=" << splicing_point_flag <<
 		" TP=" << transport_private_data_flag <<
-		" EX=" << adaptation_field_extension_flag <<
-		" Stuffing=" << stuffing_bytes_length << " ";
+		" EX=" << adaptation_field_extension_flag;
+	
+	if (PCR_flag == 1)
+	{
+		uint32_t PCR = program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + program_clock_reference_extension.to_ulong();
+		double time = (double)PCR / (double)xTS::ExtendedClockFrequency_Hz; //wtf it works 
+		ss << " PCR=" << PCR << " (Time=" << std::setprecision(6) << time << "s)";
+	}
+
+	if (OPCR_flag == 1)
+	{
+		uint32_t OPCR = original_program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + original_program_clock_reference_extension.to_ulong();
+		double time = (double)OPCR / (double)xTS::ExtendedClockFrequency_Hz; 
+		ss << " OPCR=" << OPCR << " (Time=" << std::setprecision(6) << time << "s)";
+	}
+	ss <<" Stuffing=" << stuffing_bytes_length << " ";
 
 	std::cout << ss.str();
 
