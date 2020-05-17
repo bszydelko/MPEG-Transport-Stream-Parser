@@ -21,7 +21,8 @@ int main(int argc, char* argv[], char* envp[])
     xTS_AdaptationField TS_PacketAdaptationField;
     xPES_Assembler      PES_Assembler;
 
-    PES_Assembler.Init(136);
+    int mainPID = 136;
+    PES_Assembler.Init(mainPID);
 
     int32_t TS_PacketId = 0;
 
@@ -37,7 +38,7 @@ int main(int argc, char* argv[], char* envp[])
 
         TS_PacketAdaptationField.Reset();
 
-        if (TS_PacketHeader.getSyncByte() == 'G' && TS_PacketHeader.getPID() == 136)
+        if (TS_PacketHeader.getSyncByte() == 'G' && TS_PacketHeader.getPID() == mainPID)
         {
             if (TS_PacketHeader.hasAdaptationField())
             {

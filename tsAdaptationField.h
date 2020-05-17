@@ -24,7 +24,7 @@ protected:
     std::bitset<6> program_clock_reference_reserved;
     std::bitset<9> program_clock_reference_extension;
     //OPCR
-    std::bitset<48> original_program_clock_reference_base;
+    std::bitset<33> original_program_clock_reference_base;
     std::bitset<6> original_program_clock_reference_reserved;
     std::bitset<9> original_program_clock_reference_extension;
 
@@ -51,8 +51,8 @@ protected:
     int N; //nieprzerwana liczba pakietów z tym samym PID
 
     //TODO - stuffing bytes
-
-    uint8_t* StuffingBytes;
+    size_t stuffing_bytes_length;
+    uint8_t* stuffing_bytes;
 
 
 

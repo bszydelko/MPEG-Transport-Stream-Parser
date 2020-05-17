@@ -54,8 +54,10 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 	//dude, improve it
 	int lengthAF = Input[xTS::TS_AdaptationFieldLengthByte];
 	adaptation_field_length = lengthAF;
+	stuffing_bytes_length = adaptation_field_length.to_ulong() - 1;
 
-	lengthAF++;
+	//lengthAF++;
+	
 
 	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_HeaderLength + 1, lengthAF));
 
@@ -74,21 +76,31 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 		AF_bit_stream >> program_clock_reference_base;
 		AF_bit_stream >> program_clock_reference_reserved;
 		AF_bit_stream >> program_clock_reference_extension;
+
+		stuffing_bytes_length -= 6;
 	}
 	if (OPCR_flag == 1)
 	{
 		AF_bit_stream >> original_program_clock_reference_base;
 		AF_bit_stream >> original_program_clock_reference_reserved;
 		AF_bit_stream >> original_program_clock_reference_extension;
+
+		stuffing_bytes_length -= 6;
 	}
 	if (splicing_point_flag == 1)
+	{
 		AF_bit_stream >> splice_countdown;
+
+		stuffing_bytes_length -= 1;
+	}
 
 	if (transport_private_data_flag == 1)
 	{
 		AF_bit_stream >> transport_private_data_length;
 		transport_private_data = new uint8_t[transport_private_data_length.to_ulong()];
 		AF_bit_stream >> transport_private_data;
+
+		stuffing_bytes_length -= transport_private_data_length.to_ulong();
 	}
 	if (adaptation_field_extension_flag == 1)
 	{
@@ -98,25 +110,29 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 		AF_bit_stream >> seamless_splice_flag;
 		AF_bit_stream >> adaptation_field_extension_reserved;
 
+		stuffing_bytes_length -= adaptation_field_extension_length.to_ulong() - 1;
+
 		if (ltw_flag == 1)
 		{
 			AF_bit_stream >> ltw_valid_flag;
 			AF_bit_stream >> ltw_offset;
+
+			stuffing_bytes_length -= 2;
 		}
 		if (piecewise_rate_flag == 1)
 		{
 			AF_bit_stream >> piecewise_rate_reserved;
 			AF_bit_stream >> piecewise_rate;
+
+			stuffing_bytes_length -= 3;
 		}
 		if (seamless_splice_flag == 1)
 		{
 			AF_bit_stream >> splice_type;
 			AF_bit_stream >> DTS_next_access_unit;
-		}
-		/*for (int i = 0; i < N; i++)
-		{
 
-		}*/
+			stuffing_bytes_length -= 5;
+		}
 
 	}
 	return int32_t();
@@ -136,7 +152,8 @@ void xTS_AdaptationField::Print() const
 		" OR=" << OPCR_flag <<
 		" SPF=" << splicing_point_flag <<
 		" TP=" << transport_private_data_flag <<
-		" EX=" << adaptation_field_extension_flag << " ";
+		" EX=" << adaptation_field_extension_flag <<
+		" Stuffing=" << stuffing_bytes_length << " ";
 
 	std::cout << ss.str();
 
