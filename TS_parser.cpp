@@ -1,5 +1,9 @@
 #include "tsCommon.h"
 #include "tsTransportStream.h"
+#include "tsPacketHeader.h"
+#include "tsAdaptationField.h"
+#include "pesPacketHeader.h"
+#include "pesAssembler.h"
 
 
 int main(int argc, char* argv[], char* envp[])

@@ -114,11 +114,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="pesAssembler.cpp" />
+    <ClCompile Include="pesPacketHeader.cpp" />
+    <ClCompile Include="tsAdaptationField.cpp" />
+    <ClCompile Include="tsPacketHeader.cpp" />
     <ClCompile Include="tsTransportStream.cpp" />
     <ClCompile Include="TS_parser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="pesAssembler.h" />
+    <ClInclude Include="pesPacketHeader.h" />
+    <ClInclude Include="tsAdaptationField.h" />
     <ClInclude Include="tsCommon.h" />
+    <ClInclude Include="tsPacketHeader.h" />
     <ClInclude Include="tsTransportStream.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -21,13 +21,37 @@
     <ClCompile Include="tsTransportStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pesAssembler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pesPacketHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tsPacketHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tsAdaptationField.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tsCommon.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="tsPacketHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tsAdaptationField.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pesPacketHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pesAssembler.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tsTransportStream.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tsCommon.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
