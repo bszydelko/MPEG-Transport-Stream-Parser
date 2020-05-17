@@ -21,7 +21,7 @@ int main(int argc, char* argv[], char* envp[])
     xTS_AdaptationField TS_PacketAdaptationField;
     xPES_Assembler      PES_Assembler;
 
-    //PES_Assembler.Init(136);
+    PES_Assembler.Init(136);
 
     int32_t TS_PacketId = 0;
 
@@ -29,7 +29,8 @@ int main(int argc, char* argv[], char* envp[])
     {
         size_t NumRead = fread(TS_PacketBuffer, 1, xTS::TS_PacketLength, TransportStreamFile);
 
-        if (NumRead != xTS::TS_PacketLength) { break; }
+        if (NumRead != xTS::TS_PacketLength) break;
+
 
         TS_PacketHeader.Reset();
         TS_PacketHeader.Parse(TS_PacketBuffer);

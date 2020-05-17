@@ -40,7 +40,7 @@ public:
     uint16_t getPID() const;
     uint8_t getTransportScramblingControl() const;
     uint8_t getAdaptationFieldControl() const;
-    uint8_t getContinuityControl() const;
+    uint8_t getContinuityCounter() const;
 
 public:
     //TODO

@@ -14,13 +14,25 @@ void xPES_PacketHeader::Reset()
 	m_PacketLength.reset();
 }
 
-int32_t xPES_PacketHeader::Parse(const uint8_t* Input)
+int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
 {
-	//std::istringstream PES_bit_stream(xTS::getBitStream(Input, ))
+	std::istringstream PES_bit_stream(xTS::getBitStream(Input, start_byte, 6));
 
-		return int32_t();
+	PES_bit_stream >> m_PacketStartCodePrefix;
+	PES_bit_stream >> m_StreamId;
+	PES_bit_stream >> m_PacketLength;
+
+	return int32_t();
 }
 
 void xPES_PacketHeader::Print() const
 {
+	std::stringstream ss;
+
+	ss << "PES:"
+		<< " PSCP=" << m_PacketStartCodePrefix.to_ulong()
+		<< " SID=" << m_StreamId.to_ulong()
+		<< " L=" << m_PacketLength.to_ulong();
+
+	std::cout << ss.str();
 }

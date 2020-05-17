@@ -65,4 +65,6 @@ public:
 public:
     //derrived values
     uint32_t getNumBytes() const {}
+
+    uint8_t getAdaptationFieldLength() const;
 };

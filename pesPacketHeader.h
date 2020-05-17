@@ -25,7 +25,7 @@ protected:
 
 public:
     void     Reset();
-    int32_t  Parse(const uint8_t* Input);
+    int32_t  Parse(const uint8_t* Input, size_t start_byte);
     void     Print() const;
 
 public:

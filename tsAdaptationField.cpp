@@ -127,7 +127,7 @@ void xTS_AdaptationField::Print() const
 	std::stringstream ss;
 
 	ss <<
-		" AF:" <<
+		"AF:" <<
 		" L=" << std::setw(3) << adaptation_field_length.to_ulong() <<
 		" DC=" << discontinuity_indicator <<
 		" RA=" << random_access_indicator <<
@@ -136,8 +136,13 @@ void xTS_AdaptationField::Print() const
 		" OR=" << OPCR_flag <<
 		" SPF=" << splicing_point_flag <<
 		" TP=" << transport_private_data_flag <<
-		" EX=" << adaptation_field_extension_flag;
+		" EX=" << adaptation_field_extension_flag << " ";
 
 	std::cout << ss.str();
 
+}
+
+uint8_t xTS_AdaptationField::getAdaptationFieldLength() const
+{
+	return uint8_t(adaptation_field_length.to_ulong());
 }

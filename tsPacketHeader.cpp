@@ -48,7 +48,7 @@ void xTS_PacketHeader::Print() const
 		" PID=" << std::setw(4) << PID.to_ulong() <<
 		" TSC=" << transport_scrambling_control.to_ulong() <<
 		" AFC=" << adaptation_field_control.to_ulong() <<
-		" CC=" << std::setw(2) << continuity_counter.to_ulong();
+		" CC=" << std::setw(2) << continuity_counter.to_ulong() << " ";
 
 	std::cout << ss.str();
 }
@@ -87,7 +87,7 @@ uint8_t xTS_PacketHeader::getAdaptationFieldControl() const
 {
 	return uint8_t(adaptation_field_control.to_ulong());
 }
-uint8_t xTS_PacketHeader::getContinuityControl() const
+uint8_t xTS_PacketHeader::getContinuityCounter() const
 {
-	return uint8_t();
+	return uint8_t(continuity_counter.to_ulong());
 }
