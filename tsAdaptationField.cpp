@@ -160,19 +160,24 @@ void xTS_AdaptationField::Print() const
 	{
 		uint32_t PCR = program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + program_clock_reference_extension.to_ulong();
 		double time = (double)PCR / (double)xTS::ExtendedClockFrequency_Hz; //wtf it works 
-		ss << " PCR=" << PCR << " (Time=" << std::setprecision(6) << time << "s)";
+		ss << " PCR=" << PCR << " (Time=" << std::setprecision(7) << time << "s)";
 	}
 
 	if (OPCR_flag == 1)
 	{
 		uint32_t OPCR = original_program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + original_program_clock_reference_extension.to_ulong();
 		double time = (double)OPCR / (double)xTS::ExtendedClockFrequency_Hz; 
-		ss << " OPCR=" << OPCR << " (Time=" << std::setprecision(6) << time << "s)";
+		ss << " OPCR=" << OPCR << " (Time=" << std::setprecision(7) << time << "s)";
 	}
 	ss <<" Stuffing=" << stuffing_bytes_length << " ";
 
 	std::cout << ss.str();
 
+}
+
+uint32_t xTS_AdaptationField::getNumBytes() const
+{
+	return uint32_t();
 }
 
 uint8_t xTS_AdaptationField::getAdaptationFieldLength() const

@@ -53,7 +53,9 @@ public:
   static constexpr uint32_t BaseToExtendedClockMultiplier =      300;
 
 
-  //my stuff
+  //Input - input stream
+  //startByte - :)
+  //count - nubmer of bytes to return
   static std::string getBitStream(const uint8_t* _Input, size_t _startByte, size_t _count);
   static constexpr uint32_t TS_AdaptationFieldLengthByte = 4; //of course it's 5
   

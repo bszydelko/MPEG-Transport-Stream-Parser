@@ -21,7 +21,7 @@ int main(int argc, char* argv[], char* envp[])
     xTS_AdaptationField TS_PacketAdaptationField;
     xPES_Assembler      PES_Assembler;
 
-    int mainPID = 174; //136, 174
+    int mainPID = 136; //136, 174
     PES_Assembler.Init(mainPID);
 
     int32_t TS_PacketId = 0;
