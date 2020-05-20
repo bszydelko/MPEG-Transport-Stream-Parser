@@ -18,6 +18,7 @@ void xPES_PacketHeader::Reset()
 int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
 {
 	std::istringstream PES_bit_stream(xTS::getBitStream(Input, start_byte, xTS::PES_HeaderLength));
+	
 
 	PES_bit_stream >> m_Packet_start_code_prefix;
 	PES_bit_stream >> m_Stream_id;
@@ -50,6 +51,7 @@ int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
 		PES_bit_stream >> m_PES_CRC_flag;
 		PES_bit_stream >> m_PES_extension_flag;
 		PES_bit_stream >> m_PES_header_data_length;
+
 
 		if (m_PTS_DTS_flags == 0b10)
 		{
@@ -112,6 +114,7 @@ void xPES_PacketHeader::Print() const
 	if (m_PTS_DTS_flags == 0b10)
 	{
 		//print pts
+		
 		ss << " PTS=" << "(Time=" << "s)";
 	}
 

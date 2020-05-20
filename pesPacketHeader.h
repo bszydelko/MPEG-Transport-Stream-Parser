@@ -44,6 +44,7 @@ protected:
 
     std::bitset<24> m_ES_rate_data;
 
+
 public:
     void     Reset();
     int32_t  Parse(const uint8_t* Input, size_t start_byte);
@@ -54,4 +55,5 @@ public:
     uint32_t getPacketStartCodePrefix() const { return m_Packet_start_code_prefix.to_ulong(); }
     uint8_t  getStreamId()              const { return m_Stream_id.to_ulong(); }
     uint16_t getPacketLength()          const { return m_PES_packet_length.to_ulong(); }
+    uint16_t getHeaderDataLength()      const { return m_PES_header_data_length.to_ulong() + 3; }
 };

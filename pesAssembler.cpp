@@ -23,12 +23,16 @@ xPES_Assembler::xPES_Assembler()
 
 xPES_Assembler::~xPES_Assembler()
 {
+	fclose(m_File);
 	delete [] m_Buffer;
 }
 
 void xPES_Assembler::Init(int32_t PID)
 {
 	m_PID = PID;
+	std::string name = "../PID" + std::to_string(PID) + ".mp2";
+	m_Filename = name.c_str();
+	m_File = fopen(m_Filename, "wb");
 }
 
 xPES_Assembler::eResult xPES_Assembler::AbsorbPacket
@@ -92,6 +96,7 @@ xPES_Assembler::eResult xPES_Assembler::AbsorbPacket
 		if (m_PESH.getPacketLength() == m_BufferSize) //last PES packet part
 		{
 			m_Started = false;
+			size_t writed = fwrite(&m_Buffer[this->getHeaderLength()], 1, this->getDataLength(), m_File);
 			return eResult::AssemblingFinished;
 		}
 
@@ -132,7 +137,9 @@ void xPES_Assembler::xBufferAppend(const uint8_t* Data, int32_t Size)
 		temp_buffer[byte] = m_Buffer[byte];
 	}
 
-	for (int32_t new_byte = 0; new_byte < Size; byte++, new_byte++)
+
+
+	for (int32_t new_byte = 0; new_byte < Size; ++byte, new_byte++)
 	{
 		temp_buffer[byte] = Data[new_byte];
 	}

@@ -21,8 +21,9 @@ int main(int argc, char* argv[], char* envp[])
     xTS_AdaptationField TS_PacketAdaptationField;
     xPES_Assembler      PES_Assembler;
 
-    int mainPID = 136; //136, 174
-    PES_Assembler.Init(mainPID);
+    int PID136 = 136;
+    int PID174 = 174;
+    PES_Assembler.Init(PID136);
 
     int32_t TS_PacketId = 0;
 
@@ -38,7 +39,7 @@ int main(int argc, char* argv[], char* envp[])
 
         TS_PacketAdaptationField.Reset();
 
-        if (TS_PacketHeader.getSyncByte() == 'G' && TS_PacketHeader.getPID() == mainPID)
+        if (TS_PacketHeader.getSyncByte() == 'G' && TS_PacketHeader.getPID() == PID136)
         {
             if (TS_PacketHeader.hasAdaptationField())
             {
@@ -76,7 +77,9 @@ int main(int argc, char* argv[], char* envp[])
             case xPES_Assembler::eResult::AssemblingFinished: 
             {
                 printf("Finished ");
-                printf("PES: Len=%d", PES_Assembler.getNumPacketBytes());
+                printf("PES: PcktLen=%d ", PES_Assembler.getPacketLength());
+                printf("HeadLen=%d ", PES_Assembler.getHeaderLength());
+                printf("DataLen=%d ", PES_Assembler.getDataLength());
                 break;
             }
             default: 
