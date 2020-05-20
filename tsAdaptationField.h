@@ -4,10 +4,11 @@
 
 class xTS_AdaptationField
 {
+public:
+    xTS_AdaptationField();
 protected:
     //AF lenght
     std::bitset<8>adaptation_field_length;
-
     //mandatory field
     std::bitset<1>discontinuity_indicator;
     std::bitset<1>random_access_indicator;
@@ -48,23 +49,17 @@ protected:
     std::bitset<4> splice_type;
     std::bitset<36> DTS_next_access_unit; //do it later
 
-    int N; //nieprzerwana liczba pakietów z tym samym PID
-
     //TODO - stuffing bytes
     size_t stuffing_bytes_length;
     uint8_t* stuffing_bytes;
-
-
 
 public:
     void Reset();
     int32_t Parse(const uint8_t* Input, uint8_t AdapdationFieldControl);
     void Print() const;
 
-
 public:
     //derrived values
     uint32_t getNumBytes() const;
-
     uint8_t getAdaptationFieldLength() const;
 };

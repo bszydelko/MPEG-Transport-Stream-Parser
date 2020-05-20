@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+
 void xTS_PacketHeader::Reset()
 {
 	sync_byte.reset();
@@ -30,7 +31,6 @@ int32_t xTS_PacketHeader::Parse(const uint8_t* Input)
 	H_bit_stream >> continuity_counter;
 
 	//rownie dobrze reszte bitstreamu mozna zapisac i udostepniac pozostalym klasom
-	//
 
 	return int32_t();
 }

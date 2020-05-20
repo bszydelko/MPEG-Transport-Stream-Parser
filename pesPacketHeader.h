@@ -1,7 +1,6 @@
 #pragma once
 #include <bitset>
 
-
 class xPES_PacketHeader
 {
 public:
@@ -44,8 +43,6 @@ protected:
     std::bitset<48> m_ESCR_data;
 
     std::bitset<24> m_ES_rate_data;
-
-
 
 public:
     void     Reset();

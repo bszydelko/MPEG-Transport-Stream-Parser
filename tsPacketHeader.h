@@ -44,6 +44,6 @@ public:
 
 public:
     //TODO
-    bool     hasAdaptationField() const { return (adaptation_field_control.to_ulong() == 2 || adaptation_field_control.to_ulong() == 3) ? true : false; }
-    bool     hasPayload() const { return (adaptation_field_control.to_ulong() == 3 || adaptation_field_control.to_ulong() == 1) ? true : false; }
+    bool     hasAdaptationField() const { return (adaptation_field_control == 0b10 || adaptation_field_control == 0b11) ? true : false; }
+    bool     hasPayload() const { return (adaptation_field_control == 0b01 || adaptation_field_control == 0b11) ? true : false; }
 };

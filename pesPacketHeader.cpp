@@ -23,6 +23,7 @@ int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
 	PES_bit_stream >> m_Stream_id;
 	PES_bit_stream >> m_PES_packet_length;
 
+
 	if (m_Stream_id != eStreamId::eStreamId_program_stream_map
 		&& m_Stream_id != eStreamId::eStreamId_padding_stream
 		&& m_Stream_id != eStreamId::eStreamId_private_stream_2
@@ -40,6 +41,7 @@ int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
 		PES_bit_stream >> m_Data_alignment_indicator;
 		PES_bit_stream >> m_Copyright;
 		PES_bit_stream >> m_Original_or_copy;
+
 		PES_bit_stream >> m_PTS_DTS_flags;
 		PES_bit_stream >> m_ESCR_flag;
 		PES_bit_stream >> m_ES_rate_flag;
@@ -71,7 +73,6 @@ int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
 		}
 
 		//rest of the fields blah blah blah
-
 	}
 	else if (m_Stream_id == eStreamId::eStreamId_program_stream_map
 		|| m_Stream_id == eStreamId::eStreamId_private_stream_2
@@ -107,6 +108,18 @@ void xPES_PacketHeader::Print() const
 		<< " PSCP=" << m_Packet_start_code_prefix.to_ulong()
 		<< " SID=" << m_Stream_id.to_ulong()
 		<< " L=" << m_PES_packet_length.to_ulong();
+
+	if (m_PTS_DTS_flags == 0b10)
+	{
+		//print pts
+		ss << " PTS=" << "(Time=" << "s)";
+	}
+
+	if (m_PTS_DTS_flags == 0b11)
+	{
+		//print pts, dts
+		ss << " PTS=" << "(Time=" << "s)" << " DTS=" << "(Time=" << "s)";
+	}
 
 	std::cout << ss.str();
 }

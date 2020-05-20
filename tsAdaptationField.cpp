@@ -7,6 +7,11 @@
 
 class xTS;
 
+xTS_AdaptationField::xTS_AdaptationField()
+{
+	stuffing_bytes = nullptr;
+}
+
 void xTS_AdaptationField::Reset()
 {
 	adaptation_field_length.reset();
@@ -49,19 +54,18 @@ void xTS_AdaptationField::Reset()
 	DTS_next_access_unit.reset(); //do it later
 
 	//optional_fields.reset();
+	/*if (stuffing_bytes != nullptr)
+		delete[] stuffing_bytes;*/
+
 }
 
 int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationFieldControl)
 {
-	//dude, improve it
-	int lengthAF = Input[xTS::TS_AdaptationFieldLengthByte];
-	adaptation_field_length = lengthAF;
-	stuffing_bytes_length = adaptation_field_length.to_ulong() - 1;
-
-	//lengthAF++;
 	
+	adaptation_field_length = Input[xTS::TS_AdaptationFieldLengthByte];
+	stuffing_bytes_length = adaptation_field_length.to_ulong() - 1; //substracted in IF statements
 
-	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_AdaptationFieldLengthByte + 1, lengthAF));
+	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_AdaptationFieldLengthByte + 1, adaptation_field_length.to_ulong()));
 
 	AF_bit_stream >> discontinuity_indicator;
 	AF_bit_stream >> random_access_indicator;
@@ -137,6 +141,14 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 		}
 
 	}
+	/*if (stuffing_bytes_length > 0)
+	{
+		stuffing_bytes = new uint8_t[stuffing_bytes_length];
+		for (size_t byte = 0; byte < stuffing_bytes_length; byte++)
+		{
+			AF_bit_stream >> stuffing_bytes[byte];
+		}
+	}*/
 	return int32_t();
 }
 
@@ -159,7 +171,7 @@ void xTS_AdaptationField::Print() const
 	if (PCR_flag == 1)
 	{
 		uint32_t PCR = program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + program_clock_reference_extension.to_ulong();
-		double time = (double)PCR / (double)xTS::ExtendedClockFrequency_Hz; //wtf it works 
+		double time = (double)PCR / (double)xTS::ExtendedClockFrequency_Hz; //wtf it works XD
 		ss << " PCR=" << PCR << " (Time=" << std::setprecision(7) << time << "s)";
 	}
 
@@ -172,7 +184,6 @@ void xTS_AdaptationField::Print() const
 	ss <<" Stuffing=" << stuffing_bytes_length << " ";
 
 	std::cout << ss.str();
-
 }
 
 uint32_t xTS_AdaptationField::getNumBytes() const
