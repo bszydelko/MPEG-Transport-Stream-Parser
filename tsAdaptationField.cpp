@@ -61,7 +61,6 @@ void xTS_AdaptationField::Reset()
 
 int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationFieldControl)
 {
-	
 	adaptation_field_length = Input[xTS::TS_AdaptationFieldLengthByte];
 	stuffing_bytes_length = adaptation_field_length.to_ulong() - 1; //substracted in IF statements
 
@@ -77,7 +76,7 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 	AF_bit_stream >> adaptation_field_extension_flag;
 
 	//potrzeba sprawdzenia na "bogatszym" w pola pakiet
-	if (PCR_flag == 1)
+	if (PCR_flag == 0b1)
 	{
 		AF_bit_stream >> program_clock_reference_base;
 		AF_bit_stream >> program_clock_reference_reserved;
@@ -85,7 +84,7 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 
 		stuffing_bytes_length -= 6;
 	}
-	if (OPCR_flag == 1)
+	if (OPCR_flag == 0b1)
 	{
 		AF_bit_stream >> original_program_clock_reference_base;
 		AF_bit_stream >> original_program_clock_reference_reserved;
@@ -93,14 +92,14 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 
 		stuffing_bytes_length -= 6;
 	}
-	if (splicing_point_flag == 1)
+	if (splicing_point_flag == 0b1)
 	{
 		AF_bit_stream >> splice_countdown;
 
 		stuffing_bytes_length -= 1;
 	}
 
-	if (transport_private_data_flag == 1)
+	if (transport_private_data_flag == 0b1)
 	{
 		AF_bit_stream >> transport_private_data_length;
 		transport_private_data = new uint8_t[transport_private_data_length.to_ulong()];
@@ -108,7 +107,7 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 
 		stuffing_bytes_length -= transport_private_data_length.to_ulong();
 	}
-	if (adaptation_field_extension_flag == 1)
+	if (adaptation_field_extension_flag == 0b1)
 	{
 		AF_bit_stream >> adaptation_field_extension_length;
 		AF_bit_stream >> ltw_flag;
@@ -118,21 +117,21 @@ int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationField
 
 		stuffing_bytes_length -= adaptation_field_extension_length.to_ulong() - 1;
 
-		if (ltw_flag == 1)
+		if (ltw_flag == 0b1)
 		{
 			AF_bit_stream >> ltw_valid_flag;
 			AF_bit_stream >> ltw_offset;
 
 			stuffing_bytes_length -= 2;
 		}
-		if (piecewise_rate_flag == 1)
+		if (piecewise_rate_flag == 0b1)
 		{
 			AF_bit_stream >> piecewise_rate_reserved;
 			AF_bit_stream >> piecewise_rate;
 
 			stuffing_bytes_length -= 3;
 		}
-		if (seamless_splice_flag == 1)
+		if (seamless_splice_flag == 0b1)
 		{
 			AF_bit_stream >> splice_type;
 			AF_bit_stream >> DTS_next_access_unit;
@@ -157,25 +156,25 @@ void xTS_AdaptationField::Print() const
 	std::stringstream ss;
 
 	ss <<
-		"AF:" <<
-		" L=" << std::setw(3) << adaptation_field_length.to_ulong() <<
-		" DC=" << discontinuity_indicator <<
-		" RA=" << random_access_indicator <<
-		" SPI=" << elementary_stream_priority_indicator <<
-		" PR=" << PCR_flag <<
-		" OR=" << OPCR_flag <<
-		" SPF=" << splicing_point_flag <<
-		" TP=" << transport_private_data_flag <<
-		" EX=" << adaptation_field_extension_flag;
+		"AF:"  <<
+		" L="  << std::setw(3) <<	adaptation_field_length.to_ulong()	<<
+		" DC=" <<					discontinuity_indicator				<<
+		" RA=" <<					random_access_indicator				<<
+		" SPI="<<					elementary_stream_priority_indicator<<
+		" PR=" <<					PCR_flag							<<
+		" OR=" <<					OPCR_flag							<<
+		" SPF="<<					splicing_point_flag					<<
+		" TP=" <<					transport_private_data_flag			<<
+		" EX=" <<					adaptation_field_extension_flag;
 	
-	if (PCR_flag == 1)
+	if (PCR_flag == 0b1)
 	{
 		uint32_t PCR = program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + program_clock_reference_extension.to_ulong();
 		double time = (double)PCR / (double)xTS::ExtendedClockFrequency_Hz; //wtf it works XD
 		ss << " PCR=" << PCR << " (Time=" << std::setprecision(7) << time << "s)";
 	}
 
-	if (OPCR_flag == 1)
+	if (OPCR_flag == 0b1)
 	{
 		uint32_t OPCR = original_program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + original_program_clock_reference_extension.to_ulong();
 		double time = (double)OPCR / (double)xTS::ExtendedClockFrequency_Hz; 

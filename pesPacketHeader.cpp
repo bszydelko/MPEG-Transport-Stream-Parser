@@ -15,15 +15,13 @@ void xPES_PacketHeader::Reset()
 	m_PES_packet_length.reset();
 }
 
-int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
+int32_t xPES_PacketHeader::Parse(const uint8_t* Input)
 {
-	std::istringstream PES_bit_stream(xTS::getBitStream(Input, start_byte, xTS::PES_HeaderLength));
+	std::stringstream PES_bit_stream(xTS::getBitStream(Input, 0, xTS::PES_HeaderLength));
 	
-
 	PES_bit_stream >> m_Packet_start_code_prefix;
 	PES_bit_stream >> m_Stream_id;
 	PES_bit_stream >> m_PES_packet_length;
-
 
 	if (m_Stream_id != eStreamId::eStreamId_program_stream_map
 		&& m_Stream_id != eStreamId::eStreamId_padding_stream
@@ -34,7 +32,9 @@ int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
 		&& m_Stream_id != eStreamId::eStreamId_DSMCC_stream
 		&& m_Stream_id != eStreamId::eStreamId_ITUT_H222_1_type_E)
 	{
-		std::istringstream PES_bit_stream(xTS::getBitStream(Input, start_byte + xTS::PES_HeaderLength, 3));
+		PES_bit_stream.str("");  
+		PES_bit_stream.clear(); //header length is not known, read 3 bytes for flags
+		PES_bit_stream << xTS::getBitStream(Input, xTS::PES_HeaderLength, 3);
 
 		PES_bit_stream >> m_Marker_bits;
 		PES_bit_stream >> m_PES_scrambling_control;
@@ -52,16 +52,40 @@ int32_t xPES_PacketHeader::Parse(const uint8_t* Input, size_t start_byte)
 		PES_bit_stream >> m_PES_extension_flag;
 		PES_bit_stream >> m_PES_header_data_length;
 
+		PES_bit_stream.str("");  
+		PES_bit_stream.clear();												// header length is known
+		PES_bit_stream << xTS::getBitStream(Input, xTS::PES_HeaderLength + 3, m_PES_header_data_length.to_ulong());
+
 
 		if (m_PTS_DTS_flags == 0b10)
 		{
-			PES_bit_stream >> m_PTS_data;
+			PES_bit_stream >> m_PTS_junk; //'0010'
+			PES_bit_stream >> m_PTS_32_30;
+			PES_bit_stream >> m_PTS_marker;
+			PES_bit_stream >> m_PTS_29_15;
+			PES_bit_stream >> m_PTS_marker;
+			PES_bit_stream >> m_PTS_14_0;
+			PES_bit_stream >> m_PTS_marker;
+		
 		}
 
 		if (m_PTS_DTS_flags == 0b11)
 		{
-			PES_bit_stream >> m_PTS_data;
-			PES_bit_stream >> m_DTS_data;
+			PES_bit_stream >> m_PTS_junk; //'0010'
+			PES_bit_stream >> m_PTS_32_30;
+			PES_bit_stream >> m_PTS_marker;
+			PES_bit_stream >> m_PTS_29_15;
+			PES_bit_stream >> m_PTS_marker;
+			PES_bit_stream >> m_PTS_14_0;
+			PES_bit_stream >> m_PTS_marker;
+
+			PES_bit_stream >> m_DTS_junk; //'0001'
+			PES_bit_stream >> m_DTS_32_30;
+			PES_bit_stream >> m_DTS_marker;
+			PES_bit_stream >> m_DTS_29_15;
+			PES_bit_stream >> m_DTS_marker;
+			PES_bit_stream >> m_DTS_14_0;
+			PES_bit_stream >> m_DTS_marker;
 		}
 
 		if (m_ESCR_flag == 0b1)
@@ -113,14 +137,11 @@ void xPES_PacketHeader::Print() const
 
 	if (m_PTS_DTS_flags == 0b10)
 	{
-		//print pts
-		
 		ss << " PTS=" << "(Time=" << "s)";
 	}
 
 	if (m_PTS_DTS_flags == 0b11)
 	{
-		//print pts, dts
 		ss << " PTS=" << "(Time=" << "s)" << " DTS=" << "(Time=" << "s)";
 	}
 

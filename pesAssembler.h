@@ -24,19 +24,19 @@ public:
 
 protected:
     //setup
-    int32_t  m_PID;
+    int32_t           m_PID;
     //buffer
-    uint8_t* m_Buffer;
-    uint32_t m_BufferSize;
-    uint32_t m_DataOffset;
+    uint8_t*          m_Buffer;
+    uint32_t          m_BufferSize;
+    uint32_t          m_DataOffset;
     //operation
     int8_t            m_LastContinuityCounter;
     bool              m_Started;
     xPES_PacketHeader m_PESH;
 
     //file
-    const char* m_Filename;
-    FILE* m_File;
+    const char*       m_Filename;
+    FILE*             m_File;
 
 public:
     xPES_Assembler();
@@ -45,8 +45,8 @@ public:
     void    Init(int32_t PID);
     eResult AbsorbPacket(const uint8_t* TransportStreamPacket, const xTS_PacketHeader* PacketHeader, const xTS_AdaptationField* AdaptationField);
 
-    void     PrintPESH()        const { m_PESH.Print(); }
-    uint8_t* getPacket()        { return m_Buffer; }
+    void     PrintPESH()        const {        m_PESH.Print(); }
+    uint8_t* getPacket()              { return m_Buffer; }
     int32_t  getPacketLength()  const { return m_DataOffset; }
     int32_t  getHeaderLength()  const { return m_PESH.getHeaderDataLength() + xTS::PES_HeaderLength; }
     int32_t  getDataLength()    const { return m_DataOffset - this->getHeaderLength(); }

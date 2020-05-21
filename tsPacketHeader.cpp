@@ -40,15 +40,15 @@ void xTS_PacketHeader::Print() const
 	std::stringstream ss;
 
 	ss <<
-		"TS:" <<
-		" SB=" << sync_byte.to_ulong() <<
-		" E=" << transport_error_indicator.to_ulong() <<
-		" S=" << payload_unit_start_indicator.to_ulong() <<
-		" P=" << transport_priority.to_ulong() <<
-		" PID=" << std::setw(4) << PID.to_ulong() <<
-		" TSC=" << transport_scrambling_control.to_ulong() <<
-		" AFC=" << adaptation_field_control.to_ulong() <<
-		" CC=" << std::setw(2) << continuity_counter.to_ulong() << " ";
+		"TS:"  <<
+		" SB=" <<				  sync_byte.to_ulong()					  <<
+		" E="  <<				  transport_error_indicator.to_ulong()    <<
+		" S="  <<				  payload_unit_start_indicator.to_ulong() <<
+		" P="  <<				  transport_priority.to_ulong()           <<
+		" PID="<< std::setw(4) << PID.to_ulong()                          <<
+		" TSC="<<				  transport_scrambling_control.to_ulong() <<
+		" AFC="<<				  adaptation_field_control.to_ulong()     <<
+		" CC=" << std::setw(2) << continuity_counter.to_ulong()           << " ";
 
 	std::cout << ss.str();
 }

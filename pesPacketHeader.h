@@ -22,23 +22,32 @@ protected:
     std::bitset<8>  m_Stream_id;
     std::bitset<16> m_PES_packet_length;
     //Optional PES header - zad dod 2
-    std::bitset<2> m_Marker_bits;
-    std::bitset<2> m_PES_scrambling_control;
-    std::bitset<1> m_PES_priority;
-    std::bitset<1> m_Data_alignment_indicator;
-    std::bitset<1> m_Copyright;
-    std::bitset<1> m_Original_or_copy;
-    std::bitset<2> m_PTS_DTS_flags;
-    std::bitset<1> m_ESCR_flag;
-    std::bitset<1> m_ES_rate_flag;
-    std::bitset<1> m_DSM_trick_mode_flag;
-    std::bitset<1> m_Additional_copy_info_flag;
-    std::bitset<1> m_PES_CRC_flag;
-    std::bitset<1> m_PES_extension_flag;
-    std::bitset<8> m_PES_header_data_length;
+    std::bitset<2>  m_Marker_bits;
+    std::bitset<2>  m_PES_scrambling_control;
+    std::bitset<1>  m_PES_priority;
+    std::bitset<1>  m_Data_alignment_indicator;
+    std::bitset<1>  m_Copyright;
+    std::bitset<1>  m_Original_or_copy;
+    std::bitset<2>  m_PTS_DTS_flags;
+    std::bitset<1>  m_ESCR_flag;
+    std::bitset<1>  m_ES_rate_flag;
+    std::bitset<1>  m_DSM_trick_mode_flag;
+    std::bitset<1>  m_Additional_copy_info_flag;
+    std::bitset<1>  m_PES_CRC_flag;
+    std::bitset<1>  m_PES_extension_flag;
+    std::bitset<8>  m_PES_header_data_length;
 
-    std::bitset<40> m_PTS_data;
-    std::bitset<40> m_DTS_data;
+    std::bitset<4>  m_PTS_junk;
+    std::bitset<1>  m_PTS_marker;
+    std::bitset<3>  m_PTS_32_30;
+    std::bitset<15> m_PTS_29_15;
+    std::bitset<15> m_PTS_14_0;
+
+    std::bitset<4>  m_DTS_junk;
+    std::bitset<1>  m_DTS_marker;
+    std::bitset<3>  m_DTS_32_30;
+    std::bitset<15> m_DTS_29_15;
+    std::bitset<15> m_DTS_14_0;
 
     std::bitset<48> m_ESCR_data;
 
@@ -47,7 +56,7 @@ protected:
 
 public:
     void     Reset();
-    int32_t  Parse(const uint8_t* Input, size_t start_byte);
+    int32_t  Parse(const uint8_t* Input);
     void     Print() const;
 
 public:

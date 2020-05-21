@@ -17,8 +17,10 @@ xPES_Assembler::xPES_Assembler()
 	m_PID = -1;
 	m_LastContinuityCounter = -1;
 	m_DataOffset = xTS::PES_HeaderLength;
+	m_File = nullptr;
+	m_Filename = "";
 
-	m_Buffer = nullptr;
+	m_Buffer = NULL;
 }
 
 xPES_Assembler::~xPES_Assembler()
@@ -29,9 +31,10 @@ xPES_Assembler::~xPES_Assembler()
 
 void xPES_Assembler::Init(int32_t PID)
 {
+	//przystosowac do innych PIDów i zapisu do innych formatow, bez hardkodowania
 	m_PID = PID;
-	std::string name = "../PID" + std::to_string(PID) + ".mp2";
-	m_Filename = name.c_str();
+	std::string name_builder = "../PID" + std::to_string(PID) + ".mp2";
+	m_Filename = name_builder.c_str();
 	m_File = fopen(m_Filename, "wb");
 }
 
@@ -53,7 +56,8 @@ xPES_Assembler::eResult xPES_Assembler::AbsorbPacket
 		return eResult::StreamPackedLost;
 	}
 
-	if (PacketHeader->getPayloadUnitStartIndicator() == 1) //start of PES packet, parse PES header
+	//start of PES packet, parse PES header
+	if (PacketHeader->getPayloadUnitStartIndicator() == 1) 
 	{
 		if (m_Buffer != nullptr) xBufferReset();
 
@@ -64,16 +68,16 @@ xPES_Assembler::eResult xPES_Assembler::AbsorbPacket
 		payload_size =
 			xTS::TS_PacketLength
 			- xTS::TS_HeaderLength
-			- (AdaptationField->getAdaptationFieldLength() + 1)
-			- xTS::PES_HeaderLength;
+			- (AdaptationField->getAdaptationFieldLength() + 1);
 
-		m_PESH.Parse(TransportStreamPacket, start_byte);
+		m_PESH.Parse(&TransportStreamPacket[start_byte]);
 
 		xBufferAppend(&TransportStreamPacket[start_byte], payload_size);
 		return eResult::AssemblingStarted;
 	}
 
-	if (m_Started) //still assembling 
+	//still assembling 
+	if (m_Started) 
 	{
 		m_LastContinuityCounter = PacketHeader->getContinuityCounter();
 
@@ -88,15 +92,16 @@ xPES_Assembler::eResult xPES_Assembler::AbsorbPacket
 		else 
 		{
 			start_byte = xTS::TS_HeaderLength;
-			payload_size = xTS::TS_PacketLength - xTS::TS_HeaderLength - (AdaptationField->getAdaptationFieldLength());
+			payload_size = xTS::TS_PacketLength - xTS::TS_HeaderLength;
 		}
 		
 		xBufferAppend(&TransportStreamPacket[start_byte], payload_size);
 
-		if (m_PESH.getPacketLength() == m_BufferSize) //last PES packet part
+		//last PES packet part, length without header
+		if (m_PESH.getPacketLength() == m_BufferSize - xTS::PES_HeaderLength) 
 		{
 			m_Started = false;
-			size_t writed = fwrite(&m_Buffer[this->getHeaderLength()], 1, this->getDataLength(), m_File);
+			size_t writed = fwrite(&m_Buffer[this->getHeaderLength()], sizeof(char), this->getDataLength(), m_File);
 			return eResult::AssemblingFinished;
 		}
 
@@ -107,7 +112,7 @@ xPES_Assembler::eResult xPES_Assembler::AbsorbPacket
 void xPES_Assembler::xBufferReset()
 {
 	m_BufferSize = 0;
-	m_DataOffset = xTS::PES_HeaderLength;
+	m_DataOffset = 0;
 
 	delete [] m_Buffer;
 	m_Buffer = nullptr;
@@ -136,22 +141,22 @@ void xPES_Assembler::xBufferAppend(const uint8_t* Data, int32_t Size)
 	{
 		temp_buffer[byte] = m_Buffer[byte];
 	}
-
-
-
-	for (int32_t new_byte = 0; new_byte < Size; ++byte, new_byte++)
+	
+	//append new data
+	for (int32_t new_byte = 0; new_byte < Size; new_byte++)
 	{
 		temp_buffer[byte] = Data[new_byte];
+		byte++;
 	}
 
 	delete [] m_Buffer;
 	m_Buffer = new uint8_t[m_BufferSize];
 
+	//fill buffer
 	for (size_t byte = 0; byte < m_BufferSize; byte++)
 	{
 		m_Buffer[byte] = temp_buffer[byte];
 	}
 
 	delete [] temp_buffer;
-	//std::istringstream PES_buffer_bit_stream(xTS::getBitStream(Data, 0, Size));
 }

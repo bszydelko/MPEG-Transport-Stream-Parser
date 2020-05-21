@@ -33,17 +33,17 @@ public:
 
 public:
     //direct acces to header values
-    uint8_t getSyncByte() const;
-    uint8_t getTransportErrorIndicator() const;
-    uint8_t getPayloadUnitStartIndicator() const;
-    uint8_t getTransportPriority() const;
-    uint16_t getPID() const;
-    uint8_t getTransportScramblingControl() const;
-    uint8_t getAdaptationFieldControl() const;
-    uint8_t getContinuityCounter() const;
+    uint8_t  getSyncByte()                   const;
+    uint8_t  getTransportErrorIndicator()    const;
+    uint8_t  getPayloadUnitStartIndicator()  const;
+    uint8_t  getTransportPriority()          const;
+    uint16_t getPID()                        const;
+    uint8_t  getTransportScramblingControl() const;
+    uint8_t  getAdaptationFieldControl()     const;
+    uint8_t  getContinuityCounter()          const;
 
 public:
     //TODO
     bool     hasAdaptationField() const { return (adaptation_field_control == 0b10 || adaptation_field_control == 0b11) ? true : false; }
-    bool     hasPayload() const { return (adaptation_field_control == 0b01 || adaptation_field_control == 0b11) ? true : false; }
+    bool     hasPayload()         const { return (adaptation_field_control == 0b01 || adaptation_field_control == 0b11) ? true : false; }
 };
