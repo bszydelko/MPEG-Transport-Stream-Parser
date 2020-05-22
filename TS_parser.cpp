@@ -19,11 +19,15 @@ int main(int argc, char* argv[], char* envp[])
     uint8_t             TS_PacketBuffer[xTS::TS_PacketLength];
     xTS_PacketHeader    TS_PacketHeader;
     xTS_AdaptationField TS_PacketAdaptationField;
-    xPES_Assembler      PES_Assembler;
+    xPES_Assembler      PES_Assembler_PID_136;
+    xPES_Assembler      PES_Assembler_PID_174;
 
-    int PID136 = 136;
-    int PID174 = 174;
-    PES_Assembler.Init(PID136);
+    const int PID136 = 136;
+    const int PID174 = 174;
+    int currentPID = 0;
+
+    PES_Assembler_PID_136.Init(PID136, ".mp2");
+    PES_Assembler_PID_174.Init(PID174, ".264");
 
     int32_t TS_PacketId = 0;
 
@@ -39,51 +43,108 @@ int main(int argc, char* argv[], char* envp[])
 
         TS_PacketAdaptationField.Reset();
 
-        if (TS_PacketHeader.getSyncByte() == 'G' && TS_PacketHeader.getPID() == PID136)
+        if (TS_PacketHeader.getSyncByte() == 'G' && (TS_PacketHeader.getPID() == PID136 || TS_PacketHeader.getPID() == PID174))
         {
-            if (TS_PacketHeader.hasAdaptationField())
+            currentPID = TS_PacketHeader.getPID();
+            switch (currentPID)
             {
-                TS_PacketAdaptationField.Parse(TS_PacketBuffer, TS_PacketHeader.getAdaptationFieldControl());
-            }
+            case (PID136) :
+            {
+                if (TS_PacketHeader.hasAdaptationField())
+                {
+                    TS_PacketAdaptationField.Parse(TS_PacketBuffer, TS_PacketHeader.getAdaptationFieldControl());
+                }
 
-            printf("%010d ", TS_PacketId);
-            TS_PacketHeader.Print();
+                
+                printf("%010d ", TS_PacketId);
+                TS_PacketHeader.Print();
 
-            if (TS_PacketHeader.hasAdaptationField()) 
-            { 
-                TS_PacketAdaptationField.Print(); 
-            }
+                if (TS_PacketHeader.hasAdaptationField())
+                {
+                    TS_PacketAdaptationField.Print();
+                }
 
-            xPES_Assembler::eResult Result = PES_Assembler.AbsorbPacket(TS_PacketBuffer, &TS_PacketHeader, &TS_PacketAdaptationField);
+                xPES_Assembler::eResult Result = PES_Assembler_PID_136.AbsorbPacket(TS_PacketBuffer, &TS_PacketHeader, &TS_PacketAdaptationField);
 
-            switch (Result)
-            {
-            case xPES_Assembler::eResult::StreamPackedLost: 
-            {
-                printf("PcktLost ");
+                switch (Result)
+                {
+                case xPES_Assembler::eResult::StreamPackedLost:
+                {
+                    printf("PcktLost ");
+                    break;
+                }
+                case xPES_Assembler::eResult::AssemblingStarted:
+                {
+                    printf("Started  ");
+                    PES_Assembler_PID_136.PrintPESH();
+                    break;
+                }
+                case xPES_Assembler::eResult::AssemblingContinue:
+                {
+                    printf("Continue ");
+                    break;
+                }
+                case xPES_Assembler::eResult::AssemblingFinished:
+                {
+                    printf("Finished ");
+                    printf("PES: PcktLen=%d ", PES_Assembler_PID_136.getPacketLength());
+                    printf("HeadLen=%d ", PES_Assembler_PID_136.getHeaderLength());
+                    printf("DataLen=%d ", PES_Assembler_PID_136.getDataLength());
+                    break;
+                }
+                default:
+                    break;
+                }
                 break;
             }
-            case xPES_Assembler::eResult::AssemblingStarted: 
+            case(PID174) :
             {
-                printf("Started  ");
-                PES_Assembler.PrintPESH();
+                if (TS_PacketHeader.hasAdaptationField())
+                {
+                    TS_PacketAdaptationField.Parse(TS_PacketBuffer, TS_PacketHeader.getAdaptationFieldControl());
+                }
+
+                printf("%010d ", TS_PacketId);
+                TS_PacketHeader.Print();
+
+                if (TS_PacketHeader.hasAdaptationField())
+                {
+                    TS_PacketAdaptationField.Print();
+                }
+
+                xPES_Assembler::eResult Result = PES_Assembler_PID_174.AbsorbPacket(TS_PacketBuffer, &TS_PacketHeader, &TS_PacketAdaptationField);
+
+                switch (Result)
+                {
+                case xPES_Assembler::eResult::StreamPackedLost:
+                {
+                    printf("PcktLost ");
+                    break;
+                }
+                case xPES_Assembler::eResult::AssemblingStarted:
+                {
+                    printf("Started  ");
+                    PES_Assembler_PID_174.PrintPESH();
+                    break;
+                }
+                case xPES_Assembler::eResult::AssemblingContinue:
+                {
+                    printf("Continue ");
+                    break;
+                }
+                case xPES_Assembler::eResult::AssemblingFinished:
+                {
+                    printf("Finished ");
+                    printf("PES: PcktLen=%d ", PES_Assembler_PID_174.getPacketLength());
+                    printf("HeadLen=%d ", PES_Assembler_PID_174.getHeaderLength());
+                    printf("DataLen=%d ", PES_Assembler_PID_174.getDataLength());
+                    break;
+                }
+                default:
+                    break;
+                }
                 break;
             }
-            case xPES_Assembler::eResult::AssemblingContinue: 
-            {
-                printf("Continue ");
-                break;
-            }
-            case xPES_Assembler::eResult::AssemblingFinished: 
-            {
-                printf("Finished ");
-                printf("PES: PcktLen=%d ", PES_Assembler.getPacketLength());
-                printf("HeadLen=%d ", PES_Assembler.getHeaderLength());
-                printf("DataLen=%d ", PES_Assembler.getDataLength());
-                break;
-            }
-            default: 
-                break;
             }
             printf("\n");
         }

@@ -137,12 +137,21 @@ void xPES_PacketHeader::Print() const
 
 	if (m_PTS_DTS_flags == 0b10)
 	{
-		ss << " PTS=" << "(Time=" << "s)";
+		uint32_t PES = std::bitset<33>(std::string(m_PTS_32_30.to_string() + m_PTS_29_15.to_string() + m_PTS_14_0.to_string())).to_ulong();
+		float PES_time = float(PES) / float(xTS::BaseClockFrequency_Hz);
+
+		ss << " PTS=" << PES << "(Time=" << PES_time <<"s)";
 	}
 
 	if (m_PTS_DTS_flags == 0b11)
 	{
-		ss << " PTS=" << "(Time=" << "s)" << " DTS=" << "(Time=" << "s)";
+		uint32_t PES = std::bitset<33>(std::string(m_PTS_32_30.to_string() + m_PTS_29_15.to_string() + m_PTS_14_0.to_string())).to_ulong();
+		uint32_t DES = std::bitset<33>(std::string(m_DTS_32_30.to_string() + m_DTS_29_15.to_string() + m_DTS_14_0.to_string())).to_ulong();
+
+		float PES_time = float(PES) / float(xTS::BaseClockFrequency_Hz);
+		float DES_time = float(DES) / float(xTS::BaseClockFrequency_Hz);
+
+		ss << " PTS=" << PES << "(Time=" << PES_time << "s)" << " DTS=" << DES << "(Time=" << DES_time << "s)";
 	}
 
 	std::cout << ss.str();
