@@ -5,6 +5,8 @@
 #include "pesPacketHeader.h"
 #include "pesAssembler.h"
 
+#define DEBUG 1
+
 
 int main(int argc, char* argv[], char* envp[])
 {
@@ -52,20 +54,25 @@ int main(int argc, char* argv[], char* envp[])
             {
                 if (TS_PacketHeader.hasAdaptationField())
                 {
-                    TS_PacketAdaptationField.Parse(TS_PacketBuffer, TS_PacketHeader.getAdaptationFieldControl());
+                    #if DEBUG 
+                    TS_PacketAdaptationField.Parse(TS_PacketBuffer, TS_PacketHeader.getAdaptationFieldControl()); 
+                    #endif 
                 }
 
                 
                 printf("%010d ", TS_PacketId);
+                #if DEBUG
                 TS_PacketHeader.Print();
-
+                #endif
                 if (TS_PacketHeader.hasAdaptationField())
                 {
+                    #if DEBUG
                     TS_PacketAdaptationField.Print();
+                    #endif
                 }
 
                 xPES_Assembler::eResult Result = PES_Assembler_PID_136.AbsorbPacket(TS_PacketBuffer, &TS_PacketHeader, &TS_PacketAdaptationField);
-
+                #if DEBUG
                 switch (Result)
                 {
                 case xPES_Assembler::eResult::StreamPackedLost:
@@ -95,8 +102,9 @@ int main(int argc, char* argv[], char* envp[])
                 default:
                     break;
                 }
+                #endif
                 break;
-            }
+            } 
             case(PID174) :
             {
                 if (TS_PacketHeader.hasAdaptationField())
@@ -105,15 +113,18 @@ int main(int argc, char* argv[], char* envp[])
                 }
 
                 printf("%010d ", TS_PacketId);
+                #if DEBUG
                 TS_PacketHeader.Print();
-
+                #endif
                 if (TS_PacketHeader.hasAdaptationField())
                 {
+                    #if DEBUG
                     TS_PacketAdaptationField.Print();
+                    #endif
                 }
 
                 xPES_Assembler::eResult Result = PES_Assembler_PID_174.AbsorbPacket(TS_PacketBuffer, &TS_PacketHeader, &TS_PacketAdaptationField);
-
+                #if DEBUG
                 switch (Result)
                 {
                 case xPES_Assembler::eResult::StreamPackedLost:
@@ -143,6 +154,7 @@ int main(int argc, char* argv[], char* envp[])
                 default:
                     break;
                 }
+                #endif
                 break;
             }
             }
