@@ -5,7 +5,7 @@
 #include "pesPacketHeader.h"
 #include "pesAssembler.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 int main(int argc, char* argv[], char* envp[])
@@ -47,21 +47,18 @@ int main(int argc, char* argv[], char* envp[])
 
         if (TS_PacketHeader.getSyncByte() == 'G' && (TS_PacketHeader.getPID() == PID136 || TS_PacketHeader.getPID() == PID174))
         {
-            currentPID = TS_PacketHeader.getPID();
-            switch (currentPID)
+            switch (TS_PacketHeader.getPID())
             {
             case (PID136) :
             {
                 if (TS_PacketHeader.hasAdaptationField())
                 {
-                    #if DEBUG 
                     TS_PacketAdaptationField.Parse(TS_PacketBuffer, TS_PacketHeader.getAdaptationFieldControl()); 
-                    #endif 
                 }
 
-                
-                printf("%010d ", TS_PacketId);
                 #if DEBUG
+                printf("%010d ", TS_PacketId);
+                
                 TS_PacketHeader.Print();
                 #endif
                 if (TS_PacketHeader.hasAdaptationField())
@@ -111,9 +108,9 @@ int main(int argc, char* argv[], char* envp[])
                 {
                     TS_PacketAdaptationField.Parse(TS_PacketBuffer, TS_PacketHeader.getAdaptationFieldControl());
                 }
-
-                printf("%010d ", TS_PacketId);
                 #if DEBUG
+                printf("%010d ", TS_PacketId);
+                
                 TS_PacketHeader.Print();
                 #endif
                 if (TS_PacketHeader.hasAdaptationField())
@@ -158,7 +155,9 @@ int main(int argc, char* argv[], char* envp[])
                 break;
             }
             }
+            #if DEBUG
             printf("\n");
+            #endif
         }
         TS_PacketId++;
     }
