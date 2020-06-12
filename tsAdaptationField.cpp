@@ -9,49 +9,51 @@ class xTS;
 
 xTS_AdaptationField::xTS_AdaptationField()
 {
-	stuffing_bytes = nullptr;
+	m_Transport_private_data = nullptr;
+	m_Stuffing_bytes_length = 0;
+	m_Stuffing_bytes = nullptr;
 }
 
 void xTS_AdaptationField::Reset()
 {
-	adaptation_field_length.reset();
-	discontinuity_indicator.reset();
-	random_access_indicator.reset();
-	elementary_stream_priority_indicator.reset();
-	PCR_flag.reset();
-	OPCR_flag.reset();
-	splicing_point_flag.reset();
-	transport_private_data_flag.reset();
-	adaptation_field_extension_flag.reset();
+	m_Adaptation_field_length.reset();
+	m_Discontinuity_indicator.reset();
+	m_Random_access_indicator.reset();
+	m_Elementary_stream_priority_indicator.reset();
+	m_PCR_flag.reset();
+	m_OPCR_flag.reset();
+	m_Splicing_point_flag.reset();
+	m_Transport_private_data_flag.reset();
+	m_Adaptation_field_extension_flag.reset();
 
-	program_clock_reference_base.reset();
-	program_clock_reference_reserved.reset();
-	program_clock_reference_extension.reset();
+	m_Program_clock_reference_base.reset();
+	m_Program_clock_reference_reserved.reset();
+	m_Program_clock_reference_extension.reset();
 
-	original_program_clock_reference_base.reset();
-	original_program_clock_reference_reserved.reset();
-	original_program_clock_reference_extension.reset();
+	m_Original_program_clock_reference_base.reset();
+	m_Original_program_clock_reference_reserved.reset();
+	m_Original_program_clock_reference_extension.reset();
 
-	splice_countdown.reset();
+	m_Splice_countdown.reset();
 
-	transport_private_data_length.reset();
+	m_Transport_private_data_length.reset();
 
-	adaptation_field_extension_length.reset();
+	m_Adaptation_field_extension_length.reset();
 	//delete transport_private_data;
 
-	ltw_flag.reset();
-	piecewise_rate_flag.reset();
-	seamless_splice_flag.reset();
-	adaptation_field_extension_reserved.reset();
+	m_Ltw_flag.reset();
+	m_Piecewise_rate_flag.reset();
+	m_Seamless_splice_flag.reset();
+	m_Adaptation_field_extension_reserved.reset();
 
-	ltw_valid_flag.reset();
-	ltw_offset.reset();
+	m_Ltw_valid_flag.reset();
+	m_Ltw_offset.reset();
 
-	piecewise_rate_reserved.reset();
-	piecewise_rate.reset();
+	m_Piecewise_rate_reserved.reset();
+	m_Piecewise_rate.reset();
 
-	splice_type.reset();
-	DTS_next_access_unit.reset(); //do it later
+	m_Splice_type.reset();
+	m_DTS_next_access_unit.reset(); //do it later
 
 	//optional_fields.reset();
 	/*if (stuffing_bytes != nullptr)
@@ -61,82 +63,82 @@ void xTS_AdaptationField::Reset()
 
 int32_t xTS_AdaptationField::Parse(const uint8_t* Input, uint8_t AdapdationFieldControl)
 {
-	adaptation_field_length = Input[xTS::TS_AdaptationFieldLengthByte];
-	stuffing_bytes_length = adaptation_field_length.to_ulong() - 1; //substracted in IF statements
+	m_Adaptation_field_length = Input[xTS::TS_AdaptationFieldLengthByte];
+	m_Stuffing_bytes_length = m_Adaptation_field_length.to_ulong() - 1; //substracted in IF statements
 
-	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_AdaptationFieldLengthByte + 1, adaptation_field_length.to_ulong()));
+	std::istringstream AF_bit_stream(xTS::getBitStream(Input, xTS::TS_AdaptationFieldLengthByte + 1, m_Adaptation_field_length.to_ulong()));
 
-	AF_bit_stream >> discontinuity_indicator;
-	AF_bit_stream >> random_access_indicator;
-	AF_bit_stream >> elementary_stream_priority_indicator;
-	AF_bit_stream >> PCR_flag;
-	AF_bit_stream >> OPCR_flag;
-	AF_bit_stream >> splicing_point_flag;
-	AF_bit_stream >> transport_private_data_flag;
-	AF_bit_stream >> adaptation_field_extension_flag;
+	AF_bit_stream >> m_Discontinuity_indicator;
+	AF_bit_stream >> m_Random_access_indicator;
+	AF_bit_stream >> m_Elementary_stream_priority_indicator;
+	AF_bit_stream >> m_PCR_flag;
+	AF_bit_stream >> m_OPCR_flag;
+	AF_bit_stream >> m_Splicing_point_flag;
+	AF_bit_stream >> m_Transport_private_data_flag;
+	AF_bit_stream >> m_Adaptation_field_extension_flag;
 
 	//potrzeba sprawdzenia na "bogatszym" w pola pakiet
-	if (PCR_flag == 0b1)
+	if (m_PCR_flag == 0b1)
 	{
-		AF_bit_stream >> program_clock_reference_base;
-		AF_bit_stream >> program_clock_reference_reserved;
-		AF_bit_stream >> program_clock_reference_extension;
+		AF_bit_stream >> m_Program_clock_reference_base;
+		AF_bit_stream >> m_Program_clock_reference_reserved;
+		AF_bit_stream >> m_Program_clock_reference_extension;
 
-		stuffing_bytes_length -= 6;
+		m_Stuffing_bytes_length -= 6;
 	}
-	if (OPCR_flag == 0b1)
+	if (m_OPCR_flag == 0b1)
 	{
-		AF_bit_stream >> original_program_clock_reference_base;
-		AF_bit_stream >> original_program_clock_reference_reserved;
-		AF_bit_stream >> original_program_clock_reference_extension;
+		AF_bit_stream >> m_Original_program_clock_reference_base;
+		AF_bit_stream >> m_Original_program_clock_reference_reserved;
+		AF_bit_stream >> m_Original_program_clock_reference_extension;
 
-		stuffing_bytes_length -= 6;
+		m_Stuffing_bytes_length -= 6;
 	}
-	if (splicing_point_flag == 0b1)
+	if (m_Splicing_point_flag == 0b1)
 	{
-		AF_bit_stream >> splice_countdown;
+		AF_bit_stream >> m_Splice_countdown;
 
-		stuffing_bytes_length -= 1;
+		m_Stuffing_bytes_length -= 1;
 	}
 
-	if (transport_private_data_flag == 0b1)
+	if (m_Transport_private_data_flag == 0b1)
 	{
-		AF_bit_stream >> transport_private_data_length;
-		transport_private_data = new uint8_t[transport_private_data_length.to_ulong()];
-		AF_bit_stream >> transport_private_data;
+		AF_bit_stream >> m_Transport_private_data_length;
+		m_Transport_private_data = new uint8_t[m_Transport_private_data_length.to_ulong()];
+		AF_bit_stream >> m_Transport_private_data;
 
-		stuffing_bytes_length -= transport_private_data_length.to_ulong();
+		m_Stuffing_bytes_length -= m_Transport_private_data_length.to_ulong();
 	}
-	if (adaptation_field_extension_flag == 0b1)
+	if (m_Adaptation_field_extension_flag == 0b1)
 	{
-		AF_bit_stream >> adaptation_field_extension_length;
-		AF_bit_stream >> ltw_flag;
-		AF_bit_stream >> piecewise_rate_flag;
-		AF_bit_stream >> seamless_splice_flag;
-		AF_bit_stream >> adaptation_field_extension_reserved;
+		AF_bit_stream >> m_Adaptation_field_extension_length;
+		AF_bit_stream >> m_Ltw_flag;
+		AF_bit_stream >> m_Piecewise_rate_flag;
+		AF_bit_stream >> m_Seamless_splice_flag;
+		AF_bit_stream >> m_Adaptation_field_extension_reserved;
 
-		stuffing_bytes_length -= adaptation_field_extension_length.to_ulong() - 1;
+		m_Stuffing_bytes_length -= m_Adaptation_field_extension_length.to_ulong() - 1;
 
-		if (ltw_flag == 0b1)
+		if (m_Ltw_flag == 0b1)
 		{
-			AF_bit_stream >> ltw_valid_flag;
-			AF_bit_stream >> ltw_offset;
+			AF_bit_stream >> m_Ltw_valid_flag;
+			AF_bit_stream >> m_Ltw_offset;
 
-			stuffing_bytes_length -= 2;
+			m_Stuffing_bytes_length -= 2;
 		}
-		if (piecewise_rate_flag == 0b1)
+		if (m_Piecewise_rate_flag == 0b1)
 		{
-			AF_bit_stream >> piecewise_rate_reserved;
-			AF_bit_stream >> piecewise_rate;
+			AF_bit_stream >> m_Piecewise_rate_reserved;
+			AF_bit_stream >> m_Piecewise_rate;
 
-			stuffing_bytes_length -= 3;
+			m_Stuffing_bytes_length -= 3;
 		}
-		if (seamless_splice_flag == 0b1)
+		if (m_Seamless_splice_flag == 0b1)
 		{
-			AF_bit_stream >> splice_type;
-			AF_bit_stream >> DTS_next_access_unit;
+			AF_bit_stream >> m_Splice_type;
+			AF_bit_stream >> m_DTS_next_access_unit;
 
-			stuffing_bytes_length -= 5;
+			m_Stuffing_bytes_length -= 5;
 		}
 
 	}
@@ -157,30 +159,30 @@ void xTS_AdaptationField::Print() const
 
 	ss <<
 		"AF:"  <<
-		" L="  << std::setw(3) <<	adaptation_field_length.to_ulong()	<<
-		" DC=" <<					discontinuity_indicator				<<
-		" RA=" <<					random_access_indicator				<<
-		" SPI="<<					elementary_stream_priority_indicator<<
-		" PR=" <<					PCR_flag							<<
-		" OR=" <<					OPCR_flag							<<
-		" SPF="<<					splicing_point_flag					<<
-		" TP=" <<					transport_private_data_flag			<<
-		" EX=" <<					adaptation_field_extension_flag;
+		" L="  << std::setw(3) <<	m_Adaptation_field_length.to_ulong()	<<
+		" DC=" <<					m_Discontinuity_indicator				<<
+		" RA=" <<					m_Random_access_indicator				<<
+		" SPI="<<					m_Elementary_stream_priority_indicator<<
+		" PR=" <<					m_PCR_flag							<<
+		" OR=" <<					m_OPCR_flag							<<
+		" SPF="<<					m_Splicing_point_flag					<<
+		" TP=" <<					m_Transport_private_data_flag			<<
+		" EX=" <<					m_Adaptation_field_extension_flag;
 	
-	if (PCR_flag == 0b1)
+	if (m_PCR_flag == 0b1)
 	{
-		uint32_t PCR = program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + program_clock_reference_extension.to_ulong();
+		uint32_t PCR = m_Program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + m_Program_clock_reference_extension.to_ulong();
 		double time = (double)PCR / (double)xTS::ExtendedClockFrequency_Hz; //wtf it works XD
 		ss << " PCR=" << PCR << " (Time=" << std::setprecision(7) << time << "s)";
 	}
 
-	if (OPCR_flag == 0b1)
+	if (m_OPCR_flag == 0b1)
 	{
-		uint32_t OPCR = original_program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + original_program_clock_reference_extension.to_ulong();
+		uint32_t OPCR = m_Original_program_clock_reference_base.to_ulong() * xTS::BaseToExtendedClockMultiplier + m_Original_program_clock_reference_extension.to_ulong();
 		double time = (double)OPCR / (double)xTS::ExtendedClockFrequency_Hz; 
 		ss << " OPCR=" << OPCR << " (Time=" << std::setprecision(7) << time << "s)";
 	}
-	ss <<" Stuffing=" << stuffing_bytes_length << " ";
+	ss <<" Stuffing=" << m_Stuffing_bytes_length << " ";
 
 	std::cout << ss.str();
 }
@@ -192,5 +194,5 @@ uint32_t xTS_AdaptationField::getNumBytes() const
 
 uint8_t xTS_AdaptationField::getAdaptationFieldLength() const
 {
-	return uint8_t(adaptation_field_length.to_ulong());
+	return uint8_t(m_Adaptation_field_length.to_ulong());
 }

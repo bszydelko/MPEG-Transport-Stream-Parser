@@ -32,7 +32,6 @@ xPES_Assembler::~xPES_Assembler()
 
 void xPES_Assembler::Init(int32_t PID, std::string file_extension)
 {
-	//przystosowac do innych PIDów i zapisu do innych formatow, bez hardkodowania
 	m_PID = PID;
 	std::string name_builder = "../PID" + std::to_string(PID) + file_extension;
 	m_Filename = name_builder.c_str();
@@ -119,7 +118,6 @@ xPES_Assembler::eResult xPES_Assembler::AbsorbPacket
 
 			return eResult::AssemblingContinue;
 		}
-	
 }
 
 void xPES_Assembler::xBufferReset()
@@ -140,41 +138,20 @@ void xPES_Assembler::xBufferAppend(const uint8_t* Data, int32_t Size)
 	{
 		m_Buffer = new uint8_t[m_BufferSize];
 		std::memcpy(m_Buffer, Data, m_BufferSize);
-
-		/*for (int32_t byte = 0; byte < m_BufferSize; byte++)
-		{
-			m_Buffer[byte] = Data[byte];
-		}*/
 		return;
 	}
 	
 	uint8_t* temp_buffer = new uint8_t[m_BufferSize];
 
-	int32_t byte = m_BufferSize - Size;
+	int32_t new_data_start_byte = m_BufferSize - Size;
 
-	std::memcpy(temp_buffer, m_Buffer, byte);
-	/*for (byte = 0; byte < m_BufferSize - Size; byte++)
-	{
-		temp_buffer[byte] = m_Buffer[byte];
-	}*/
-	
-	//append new data
-	std::memcpy(&temp_buffer[byte], Data, Size);
-	/*for (int32_t new_byte = 0; new_byte < Size; new_byte++)
-	{
-		temp_buffer[byte] = Data[new_byte];
-		byte++;
-	}*/
+	std::memcpy(temp_buffer, m_Buffer, new_data_start_byte);
+	std::memcpy(&temp_buffer[new_data_start_byte], Data, Size); //append new data
 
 	delete [] m_Buffer;
 	m_Buffer = new uint8_t[m_BufferSize];
 
-	//fill buffer
-	std::memcpy(m_Buffer, temp_buffer, m_BufferSize);
-	/*for (size_t byte = 0; byte < m_BufferSize; byte++)
-	{
-		m_Buffer[byte] = temp_buffer[byte];
-	}*/
+	std::memcpy(m_Buffer, temp_buffer, m_BufferSize);//fill buffer
 
 	delete [] temp_buffer;
 }

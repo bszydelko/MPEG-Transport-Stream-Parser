@@ -17,14 +17,14 @@ public:
     };
 
 protected:
-    std::bitset<8>  sync_byte;
-    std::bitset<1>  transport_error_indicator;
-    std::bitset<1>  payload_unit_start_indicator;
-    std::bitset<1>  transport_priority;
-    std::bitset<13> PID;
-    std::bitset<2>  transport_scrambling_control;
-    std::bitset<2>  adaptation_field_control;
-    std::bitset<4>  continuity_counter;
+    std::bitset<8>  m_Sync_byte;
+    std::bitset<1>  m_Transport_error_indicator;
+    std::bitset<1>  m_Payload_unit_start_indicator;
+    std::bitset<1>  m_Transport_priority;
+    std::bitset<13> m_PID;
+    std::bitset<2>  m_Transport_scrambling_control;
+    std::bitset<2>  m_Adaptation_field_control;
+    std::bitset<4>  m_Continuity_counter;
 
 public:
     void     Reset();
@@ -44,6 +44,6 @@ public:
 
 public:
     //TODO
-    bool     hasAdaptationField() const { return (adaptation_field_control == 0b10 || adaptation_field_control == 0b11) ? true : false; }
-    bool     hasPayload()         const { return (adaptation_field_control == 0b01 || adaptation_field_control == 0b11) ? true : false; }
+    bool     hasAdaptationField() const { return (m_Adaptation_field_control == 0b10 || m_Adaptation_field_control == 0b11) ? true : false; }
+    bool     hasPayload()         const { return (m_Adaptation_field_control == 0b01 || m_Adaptation_field_control == 0b11) ? true : false; }
 };
